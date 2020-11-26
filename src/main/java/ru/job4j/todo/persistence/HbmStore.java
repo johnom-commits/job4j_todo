@@ -13,13 +13,14 @@ import ru.job4j.todo.domain.Item;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class HbmStore implements TodoDAO, AutoCloseable {
     private static final Logger LOG = LogManager.getLogger(HbmStore.class.getName());
-    private SessionFactory sf;
+    private final SessionFactory sf;
 
     private HbmStore() {
-        StandardServiceRegistry registry = new StandardServiceRegistryBuilder()
+        final StandardServiceRegistry registry = new StandardServiceRegistryBuilder()
                 .configure()
                 .build();
         sf = new MetadataSources(registry)
@@ -35,21 +36,21 @@ public class HbmStore implements TodoDAO, AutoCloseable {
         return Lazy.INSTANCE;
     }
 
-    public void create(Item item) {
+    public void create(final Item item) {
         try (Session session = sf.openSession()) {
             session.beginTransaction();
             session.save(item);
             session.getTransaction().commit();
         } catch (HibernateException e) {
-            LOG.error(e.getMessage());
+            LOG.error(e.getMessage(), e);
         }
     }
 
-    public List<Item> getList(boolean allTasks) {
+    public List<Item> getList(final boolean allTasks) {
         List result = new ArrayList<>();
         try (Session session = sf.openSession()) {
             session.beginTransaction();
-            var query = new StringBuilder("from Item ");
+            final var query = new StringBuilder("from Item ");
             if (!allTasks) {
                 query.append("where done = false ");
             }
@@ -57,24 +58,24 @@ public class HbmStore implements TodoDAO, AutoCloseable {
             result = session.createQuery(query.toString()).list();
             session.getTransaction().commit();
         } catch (HibernateException e) {
-            LOG.error(e.getMessage());
+            LOG.error(e.getMessage(), e);
         }
         return result;
     }
 
-    public Item findById(int id) {
+    public Optional<Item> findById(final int id) {
         try (Session session = sf.openSession()) {
             session.beginTransaction();
             Item result = session.get(Item.class, id);
             session.getTransaction().commit();
-            return result;
+            return Optional.of(result);
         } catch (HibernateException e) {
-            LOG.error(e.getMessage());
+            LOG.error(e.getMessage(), e);
         }
-        return null;
+        return Optional.empty();
     }
 
-    public void update(int id, Item item) {
+    public void update(final int id, final Item item) {
         try (Session session = sf.openSession()) {
             session.beginTransaction();
             Query query = session.createQuery("update Item set done = :newDone where id = :id");
@@ -83,7 +84,7 @@ public class HbmStore implements TodoDAO, AutoCloseable {
             query.executeUpdate();
             session.getTransaction().commit();
         } catch (HibernateException e) {
-            LOG.error(e.getMessage());
+            LOG.error(e.getMessage(), e);
         }
     }
 
