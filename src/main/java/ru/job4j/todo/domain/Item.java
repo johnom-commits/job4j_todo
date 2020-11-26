@@ -11,16 +11,15 @@ public class Item {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String task;
+    @org.hibernate.annotations.CreationTimestamp
     private Timestamp created;
     private boolean done;
 
     public Item() {
     }
 
-    public Item(String desc, Timestamp created) {
-        this.task = desc;
-        this.created = created;
-        this.done = false;
+    public Item(String task) {
+        this.task = task;
     }
 
     public int getId() {

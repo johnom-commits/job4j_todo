@@ -8,7 +8,7 @@ import java.util.Optional;
 
 public class AddMessage {
     public void add(String desc) {
-        Item item = new Item(desc, new Timestamp(System.currentTimeMillis()));
+        Item item = new Item(desc);
         HbmStore.instanceOf().create(item);
     }
 
