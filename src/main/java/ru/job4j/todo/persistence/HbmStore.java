@@ -2,7 +2,6 @@ package ru.job4j.todo.persistence;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -11,13 +10,14 @@ import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.query.Query;
 import ru.job4j.todo.domain.Item;
+import ru.job4j.todo.domain.User;
 
-import java.util.ArrayList;
+import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
-public class HbmStore implements TodoDAO, AutoCloseable {
+public class HbmStore implements TodoDAO, AutoCloseable, Serializable {
     private static final Logger LOG = LogManager.getLogger(HbmStore.class.getName());
     private final SessionFactory sf;
 
@@ -54,18 +54,18 @@ public class HbmStore implements TodoDAO, AutoCloseable {
         }
     }
 
-    public void create(final Item item) {
-        tx(session -> session.save(item));
+    public <T> void create(final T model) {
+        tx(session -> session.save(model));
     }
 
-    public List<Item> getList(final boolean allTasks) {
+    public List<Item> getList(final boolean allTasks, final User user) {
         return tx(session -> {
-            final var query = new StringBuilder("from Item ");
+            final var query = new StringBuilder("from Item where user = :u ");
             if (!allTasks) {
-                query.append("where done = false ");
+                query.append("and done = false ");
             }
             query.append("order by id desc ");
-            return session.createQuery(query.toString()).list();
+            return session.createQuery(query.toString()).setParameter("u", user).list();
         });
     }
 
@@ -79,6 +79,15 @@ public class HbmStore implements TodoDAO, AutoCloseable {
             query.setParameter("newDone", item.isDone());
             query.setParameter("id", id);
             return query.executeUpdate();
+        });
+    }
+
+    @Override
+    public Optional<User> findByEmail(String email) {
+        return tx(session -> {
+            return session.createQuery("from User where email = :email")
+                    .setParameter("email", email)
+                    .getResultStream().findFirst();
         });
     }
 

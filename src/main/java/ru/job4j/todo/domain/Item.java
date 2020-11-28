@@ -14,12 +14,22 @@ public class Item {
     @org.hibernate.annotations.CreationTimestamp
     private Timestamp created;
     private boolean done;
+    @ManyToOne
+    @JoinColumn(name = "users")
+    private User user;
 
     public Item() {
     }
 
     public Item(String task) {
         this.task = task;
+    }
+
+    public static Item of(String task, User user) {
+        Item item = new Item();
+        item.task = task;
+        item.user = user;
+        return item;
     }
 
     public int getId() {

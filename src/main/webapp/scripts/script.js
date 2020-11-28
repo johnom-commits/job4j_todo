@@ -17,7 +17,9 @@ function getData() {
             changeTask: idTask
         }
     }).done(function (data) {
-        $('.todo').empty().html(data);
+        const d = JSON.parse(data);
+        $('.todo').empty().html(d.items);
+        $('.auth').empty().html(d.login);
     }).fail(function (err) {
         alert(err);
     });
