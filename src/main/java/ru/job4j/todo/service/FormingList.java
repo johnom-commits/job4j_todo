@@ -1,18 +1,22 @@
 package ru.job4j.todo.service;
 
 import org.json.simple.JSONObject;
+import ru.job4j.todo.domain.Category;
 import ru.job4j.todo.domain.Item;
 import ru.job4j.todo.domain.User;
 import ru.job4j.todo.persistence.HbmStore;
 
 import java.util.List;
+import java.util.Map;
 
 public class FormingList {
     public String getList(boolean allTasks, User user) {
         List<Item> items = HbmStore.instanceOf().getList(allTasks, user);
+        List<Category> category = HbmStore.instanceOf().getCategory();
         var json = new JSONObject();
         json.put("items", getItems(user, items));
         json.put("login", getAuth(user));
+        json.put("category", getSelect(category));
         return json.toJSONString();
     }
 
@@ -52,5 +56,19 @@ public class FormingList {
             login = "<a href=\"login.html\">" + user.getName() + " | Выйти</a>";
         }
         return login;
+    }
+
+    private String getSelect(List<Category> categories) {
+        StringBuilder select = new StringBuilder("<label for=\"cIds\">Категории:</label><div><select name=\"cIds\" id=\"cIds\" multiple>");
+        for (Category c : categories) {
+            select.append("<option value=")
+                    .append("item_")
+                    .append(c.getId())
+                    .append(">")
+                    .append(c.getName())
+                    .append("</option>");
+        }
+                select.append("</select></div>");
+        return select.toString();
     }
 }

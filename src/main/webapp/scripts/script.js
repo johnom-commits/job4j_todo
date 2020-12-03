@@ -8,18 +8,23 @@ let textTask = "";
 let idTask = -1;
 
 function getData() {
+    let cat = getCategory();
+
     $.ajax({
         type: "GET",
         url: 'http://localhost:8080/todo/getList',
         data: {
             allTasks: allTasks,
             addTask: textTask,
-            changeTask: idTask
+            changeTask: idTask,
+            category: cat
         }
     }).done(function (data) {
+        console.log(data);
         const d = JSON.parse(data);
         $('.todo').empty().html(d.items);
         $('.auth').empty().html(d.login);
+        $('.category').empty().html(d.category);
     }).fail(function (err) {
         alert(err);
     });
@@ -44,3 +49,8 @@ todo.addEventListener('change', (event) => {
     idTask = id.substring(index + 1, id.length);
     getData();
 });
+
+function getCategory() {
+    const selected = document.querySelectorAll('.category option:checked');
+    return Array.from(selected).map(el => el.value);
+}

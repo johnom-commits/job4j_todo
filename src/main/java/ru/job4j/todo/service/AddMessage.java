@@ -8,9 +8,9 @@ import java.sql.Timestamp;
 import java.util.Optional;
 
 public class AddMessage {
-    public void add(String desc, User user) {
+    public void add(String desc, User user, String[] categories) {
         Item item = Item.of(desc, user);
-        HbmStore.instanceOf().create(item);
+        HbmStore.instanceOf().create(item, categories);
     }
 
     public void changeDone(int idTask) {

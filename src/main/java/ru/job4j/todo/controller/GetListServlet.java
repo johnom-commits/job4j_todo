@@ -22,9 +22,11 @@ public class GetListServlet extends HttpServlet {
 
         User user = (User) req.getSession().getAttribute("user");
 
+        String[] categories = req.getParameterValues("category[]");
+
         var textTask = req.getParameter("addTask");
         if (!"".equals(textTask)) {
-            new AddMessage().add(textTask, user);
+            new AddMessage().add(textTask, user, categories);
         }
 
         int idTask = Integer.parseInt(req.getParameter("changeTask"));

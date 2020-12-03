@@ -9,6 +9,7 @@ import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.query.Query;
+import ru.job4j.todo.domain.Category;
 import ru.job4j.todo.domain.Item;
 import ru.job4j.todo.domain.User;
 
@@ -58,6 +59,19 @@ public class HbmStore implements TodoDAO, AutoCloseable, Serializable {
         tx(session -> session.save(model));
     }
 
+    public void create(final Item item, String[] categories) {
+        tx(session -> {
+            if (categories != null) {
+                for (String s : categories) {
+                    int index = s.lastIndexOf("_");
+                    Category category = session.find(Category.class, Integer.parseInt(s.substring(index + 1, s.length())));
+                    item.addCategory(category);
+                }
+            }
+            return session.save(item);
+        });
+    }
+
     public List<Item> getList(final boolean allTasks, final User user) {
         return tx(session -> {
             final var query = new StringBuilder("from Item where user = :u ");
@@ -66,6 +80,12 @@ public class HbmStore implements TodoDAO, AutoCloseable, Serializable {
             }
             query.append("order by id desc ");
             return session.createQuery(query.toString()).setParameter("u", user).list();
+        });
+    }
+
+    public List<Category> getCategory() {
+        return tx(session -> {
+            return session.createQuery("from Category").list();
         });
     }
 
