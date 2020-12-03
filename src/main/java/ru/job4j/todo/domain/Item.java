@@ -1,8 +1,8 @@
 package ru.job4j.todo.domain;
 
 import javax.persistence.*;
-import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -14,7 +14,8 @@ public class Item {
     private int id;
     private String task;
     @org.hibernate.annotations.CreationTimestamp
-    private Timestamp created;
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date created;
     private boolean done;
     @ManyToOne
     @JoinColumn(name = "users")
@@ -53,7 +54,7 @@ public class Item {
         this.task = task;
     }
 
-    public Timestamp getCreated() {
+    public Date getCreated() {
         return created;
     }
 
