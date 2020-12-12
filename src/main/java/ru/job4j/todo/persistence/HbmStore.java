@@ -13,6 +13,7 @@ import ru.job4j.todo.domain.Category;
 import ru.job4j.todo.domain.Item;
 import ru.job4j.todo.domain.User;
 
+import javax.persistence.TypedQuery;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
@@ -65,7 +66,7 @@ public class HbmStore implements TodoDAO, AutoCloseable, Serializable {
             if (categories != null) {
                 for (String s : categories) {
                     int index = s.lastIndexOf("_");
-                    Category category = session.find(Category.class, Integer.parseInt(s.substring(index + 1, s.length())));
+                    Category category = session.getReference(Category.class, Integer.parseInt(s.substring(index + 1)));
                     item.addCategory(category);
                 }
             }
@@ -85,9 +86,7 @@ public class HbmStore implements TodoDAO, AutoCloseable, Serializable {
     }
 
     public List<Category> getCategory() {
-        return tx(session -> {
-            return session.createQuery("from Category").list();
-        });
+        return tx(session -> session.createQuery("from Category").list());
     }
 
     public Optional<Item> findById(final int id) {
@@ -96,7 +95,7 @@ public class HbmStore implements TodoDAO, AutoCloseable, Serializable {
 
     public void update(final int id, final Item item) {
         tx(session -> {
-            Query query = session.createQuery("update Item set done = :newDone where id = :id");
+            TypedQuery<Item> query = session.createQuery("update Item set done = :newDone where id = :id", Item.class);
             query.setParameter("newDone", item.isDone());
             query.setParameter("id", id);
             return query.executeUpdate();

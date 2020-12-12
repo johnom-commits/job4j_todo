@@ -20,7 +20,6 @@ function getData() {
             category: cat
         }
     }).done(function (data) {
-        console.log(data);
         const d = JSON.parse(data);
         $('.todo').empty().html(d.items);
         $('.auth').empty().html(d.login);
